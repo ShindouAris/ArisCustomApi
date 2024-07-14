@@ -19,7 +19,7 @@ def gpt(content: str) -> dict:
 
 app = Flask(__name__)
 
-@app.route('/chatGPT', methods=["POST"])
+@app.route('/api/chatGPT', methods=["POST"])
 def praseGPT_response():
     responseMSG = ""
     userCONTENT = request.form["chat_content"]
@@ -27,4 +27,4 @@ def praseGPT_response():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=80)
+    app.run(debug=False, port=80)
