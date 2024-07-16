@@ -1,30 +1,51 @@
-from flask import Flask, jsonify, request
-from rsnchat import RsnChat
+from flask import Flask, request
 import dotenv
 import os
+import aiohttp
 
+base_url = "https://api.rnilaweera.lk/api/v1/user/"
 
 dotenv.load_dotenv()
 
 apiKey = os.environ.get("RSNCHATAPIKEY")
 
-rsnchat = RsnChat(apiKey)
+async def gemini(content: str):
+    async with aiohttp.ClientSession()as clss:
+        url = f"{base_url}/bard"
+        headers = {"Authorization": f"Bearer {apiKey}"}
 
-def gpt(content: str) -> dict:
-    resp = rsnchat.gpt(content)
-    output = resp.get('message', '')
+        payload = {"prompt": content}
 
-    return output
+        resp = await clss.request("POST", url=url, headers=headers, json=payload)
+        jsonResp = await resp.json()
+        return jsonResp["message"]
 
+async def gpt(content: str):
+    async with aiohttp.ClientSession()as clss:
+        url = f"{base_url}/gpt"
+        headers = {"Authorization": f"Bearer {apiKey}"}
+
+        payload = {"prompt": content}
+
+        resp = await clss.request("POST", url=url, headers=headers, json=payload)
+        jsonResp = await resp.json()
+
+        return jsonResp["message"]
 
 app = Flask(__name__)
 
 @app.route('/api/chatGPT', methods=["POST"])
-def praseGPT_response():
+async def praseGPT_response():
     responseMSG = ""
     userCONTENT = request.form["chat_content"]
-    return gpt(userCONTENT)
+    return await gpt(f"{userCONTENT}")
+
+@app.route('/api/gemini', methods=["POST"])
+async def praseGemini_response():
+    responseMSG = ""
+    userCONTENT = request.form["chat_content"]
+    return await gemini(f"{userCONTENT} ")
 
 
 if __name__ == "__main__":
-    app.run(debug=False, port=80)
+    app.run(debug=True, port=80)

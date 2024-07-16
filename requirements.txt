@@ -1,3 +1,6 @@
 Flask==3.0.3
+Flask[async]
 rsnchat
-python-dotenv
+python-dotenv==1.0.1
+aiohttp==3.9.5
+requests==2.32.3
